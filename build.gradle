@@ -1,0 +1,40 @@
+plugins {
+	id 'org.springframework.boot' version '2.7.3'
+	id 'io.spring.dependency-management' version '1.0.13.RELEASE'
+	id 'java'
+}
+
+group = 'com.acerill'
+version = '0.0.1-SNAPSHOT'
+sourceCompatibility = '17'
+
+repositories {
+	mavenCentral()
+}
+
+ext {
+	set('springCloudVersion', "2021.0.3")
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-data-r2dbc'
+	implementation 'org.springframework.cloud:spring-cloud-stream'
+	implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
+	implementation 'org.springframework.kafka:spring-kafka'
+
+	runtimeOnly 'io.r2dbc:r2dbc-h2:0.9.1.RELEASE'
+
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testImplementation 'io.projectreactor:reactor-test'
+	testImplementation 'org.springframework.kafka:spring-kafka-test'
+}
+
+dependencyManagement {
+	imports {
+		mavenBom "org.springframework.cloud:spring-cloud-dependencies:${springCloudVersion}"
+	}
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
