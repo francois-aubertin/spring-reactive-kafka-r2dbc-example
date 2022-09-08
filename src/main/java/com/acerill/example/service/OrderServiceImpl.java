@@ -17,8 +17,12 @@ public class OrderServiceImpl implements OrderService {
 
     public Mono<Order> processOrderRequest(OrderRequest orderRequest) {
         log.info("Received order request {}", orderRequest);
+        var currencyPair = orderRequest.getCurrencyPair();
         var order = Order.builder()
                 .buySell(orderRequest.getBuySell())
+                .baseCcy(currencyPair.getBase())
+                .quoteCcy(currencyPair.getQuote())
+                .quantity(orderRequest.getQuantity())
                 .build();
         return orderRepository.save(order)
                 .doOnSuccess(savedOrder -> log.info("Saved order {}", savedOrder));

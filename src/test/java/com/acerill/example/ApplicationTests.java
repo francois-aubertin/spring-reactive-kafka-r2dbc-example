@@ -46,8 +46,9 @@ class ApplicationTests {
     @Test
     void processOrderRequest() throws Exception {
         CountDownLatch latch = createLatchForOrderProcessing();
+        var quantity = new BigDecimal("10000");
 
-        sendOrderRequest(BuySell.BUY, "GBP", "USD", new BigDecimal("10000"));
+        sendOrderRequest(BuySell.BUY, "GBP", "USD", quantity);
 
         if (!latch.await(10, SECONDS)) {
             throw new AssertionError("Latch did not reach 0 after 10 seconds");
@@ -58,6 +59,9 @@ class ApplicationTests {
         var order = orders.get(0);
         assertThat(order.getOrderId(), is(notNullValue()));
         assertThat(order.getBuySell(), equalTo(BuySell.BUY));
+        assertThat(order.getBaseCcy(), equalTo("GBP"));
+        assertThat(order.getQuoteCcy(), equalTo("USD"));
+        assertThat(order.getQuantity(), equalTo(quantity));
     }
 
     private CountDownLatch createLatchForOrderProcessing() {
@@ -72,11 +76,7 @@ class ApplicationTests {
         var sendResult = kafkaTemplate
                 .send("order-requests", OrderRequest.builder()
                         .buySell(buySell)
-                        .currencyPair(CurrencyPair.builder()
-                                .base(baseCcy)
-                                .quote(quoteCcy)
-                                .build()
-                        )
+                        .currencyPair(new CurrencyPair(baseCcy, quoteCcy))
                         .quantity(quantity)
                         .build()
                 )
